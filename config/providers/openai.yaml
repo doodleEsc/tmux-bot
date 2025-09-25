@@ -1,0 +1,27 @@
+# OpenAI Provider Configuration for TmuxBot
+
+provider_type: "openai"
+name: "OpenAI"
+enabled: true
+
+# Connection settings
+timeout: 30
+max_retries: 3
+base_url: null  # Uses default OpenAI API endpoint
+organization: null  # OpenAI organization ID
+project: null       # OpenAI project ID
+
+# Default model parameters
+default_parameters:
+  temperature: 0.7
+  max_tokens: 4096
+
+# Model aliases
+model_aliases:
+  "gpt4": "gpt-4o"
+  "gpt4o": "gpt-4o"
+  "gpt4-mini": "gpt-4o-mini"
+  "turbo": "gpt-3.5-turbo"
+
+# Environment variables (will be set automatically)
+environment_vars: {}

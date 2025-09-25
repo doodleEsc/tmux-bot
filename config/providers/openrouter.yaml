@@ -1,0 +1,35 @@
+# OpenRouter Provider Configuration for TmuxBot
+
+provider_type: "openrouter"
+name: "OpenRouter"
+enabled: true
+
+# Connection settings
+base_url: "https://openrouter.ai/api/v1"
+timeout: 30
+max_retries: 3
+
+# OpenRouter-specific settings
+app_name: "TmuxBot"
+app_url: "https://github.com/tmux-bot/tmux-bot"
+
+# Default model parameters
+default_parameters:
+  temperature: 0.7
+  max_tokens: 4096
+
+# Model mappings from common names to OpenRouter format
+model_mappings:
+  "gpt-4o": "openai/gpt-4o"
+  "gpt-4o-mini": "openai/gpt-4o-mini"
+  "claude-3.5-sonnet": "anthropic/claude-3.5-sonnet"
+  "llama-3.1-8b": "meta-llama/llama-3.1-8b-instruct"
+
+# Model aliases
+model_aliases:
+  "gpt4": "gpt-4o"
+  "sonnet": "claude-3.5-sonnet"
+  "llama8b": "llama-3.1-8b"
+
+# Environment variables (will be set automatically)
+environment_vars: {}

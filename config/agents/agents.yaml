@@ -1,0 +1,243 @@
+# Agent-to-Provider Mapping Configuration for TmuxBot
+
+# Global settings
+global_settings:
+  default_timeout: 30
+  max_retries: 3
+  circuit_breaker_enabled: true
+  cost_tracking_enabled: true
+
+# Context-aware provider routing rules
+context_rules:
+  code_generation:
+    - openai      # Excellent for code generation and function calling
+    - openrouter  # Access to diverse coding models
+
+  text_analysis:
+    - openrouter  # Access to Anthropic Claude for analysis
+    - openai      # Good general text understanding
+
+  system_administration:
+    - openai      # Reliable for system commands and explanations
+    - openrouter  # Fallback with cost optimization
+
+  deployment:
+    - openai      # Consistent for infrastructure tasks
+    - openrouter  # Cost-effective alternative
+
+  debugging:
+    - openai      # Strong debugging capabilities
+    - openrouter  # Multiple model options for different approaches
+
+  creative_writing:
+    - openrouter  # Access to Claude for creative tasks
+    - openai      # Good general writing capability
+
+  general:
+    - openai      # Default choice for general tasks
+    - openrouter  # Fallback with diverse model access
+
+# Agent-specific configurations
+agents:
+  primary:
+    description: "Main coordination agent for general tasks"
+    providers:
+      - name: "openai"
+        weight: 1.0
+        max_cost_per_1k_tokens: 0.02
+        required_capabilities:
+          - text_generation
+          - conversation
+        context_types:
+          - general
+          - text_analysis
+        enabled: true
+
+      - name: "openrouter"
+        weight: 0.8
+        max_cost_per_1k_tokens: 0.01
+        required_capabilities:
+          - text_generation
+          - conversation
+        context_types:
+          - general
+          - creative_writing
+        enabled: true
+
+    fallback:
+      enabled: true
+      max_attempts: 3
+      order:
+        - openai
+        - openrouter
+      timeout_seconds: 30
+      circuit_breaker: true
+
+    context_aware_routing: true
+    cost_optimization: false
+    performance_optimization: true
+
+  coder:
+    description: "Specialized agent for code generation and analysis"
+    providers:
+      - name: "openai"
+        weight: 1.0
+        max_cost_per_1k_tokens: 0.03  # Higher budget for code quality
+        required_capabilities:
+          - code_generation
+          - function_calling
+        context_types:
+          - code_generation
+          - debugging
+        enabled: true
+
+      - name: "openrouter"
+        weight: 0.9
+        max_cost_per_1k_tokens: 0.015
+        required_capabilities:
+          - code_generation
+        context_types:
+          - code_generation
+          - debugging
+        enabled: true
+
+    fallback:
+      enabled: true
+      max_attempts: 2
+      order:
+        - openai
+        - openrouter
+      timeout_seconds: 45  # Longer timeout for complex code generation
+      circuit_breaker: true
+
+    context_aware_routing: true
+    cost_optimization: false
+    performance_optimization: true
+
+  devops:
+    description: "DevOps specialist for deployment and infrastructure"
+    providers:
+      - name: "openai"
+        weight: 1.0
+        max_cost_per_1k_tokens: 0.025
+        required_capabilities:
+          - text_generation
+          - conversation
+        context_types:
+          - deployment
+          - system_administration
+        enabled: true
+
+      - name: "openrouter"
+        weight: 0.7  # Lower weight for critical infrastructure tasks
+        max_cost_per_1k_tokens: 0.01
+        required_capabilities:
+          - text_generation
+        context_types:
+          - deployment
+          - system_administration
+        enabled: true
+
+    fallback:
+      enabled: true
+      max_attempts: 3
+      order:
+        - openai
+        - openrouter
+      timeout_seconds: 60  # Longer timeout for complex infrastructure tasks
+      circuit_breaker: true
+
+    context_aware_routing: true
+    cost_optimization: true   # Enable cost optimization for infrastructure tasks
+    performance_optimization: true
+
+  sysadmin:
+    description: "System administration specialist"
+    providers:
+      - name: "openai"
+        weight: 1.0
+        max_cost_per_1k_tokens: 0.02
+        required_capabilities:
+          - text_generation
+          - conversation
+        context_types:
+          - system_administration
+          - debugging
+        enabled: true
+
+      - name: "openrouter"
+        weight: 0.8
+        max_cost_per_1k_tokens: 0.008
+        required_capabilities:
+          - text_generation
+        context_types:
+          - system_administration
+        enabled: true
+
+    fallback:
+      enabled: true
+      max_attempts: 3
+      order:
+        - openai
+        - openrouter
+      timeout_seconds: 30
+      circuit_breaker: true
+
+    context_aware_routing: true
+    cost_optimization: true   # Cost optimization for routine admin tasks
+    performance_optimization: false  # Prioritize cost over performance
+
+# Default fallback strategy for all agents
+default_fallback:
+  enabled: true
+  max_attempts: 3
+  order:
+    - openai
+    - openrouter
+  timeout_seconds: 30
+  circuit_breaker: true
+
+# Performance and cost optimization settings
+optimization:
+  cost_tracking: true
+  performance_monitoring: true
+  adaptive_routing: true  # Automatically adjust based on performance metrics
+
+  cost_limits:
+    daily_limit_usd: 50.0
+    per_request_limit_usd: 1.0
+    warning_threshold_usd: 40.0
+
+  performance_thresholds:
+    max_response_time_seconds: 30
+    min_success_rate_percent: 95
+    circuit_breaker_failure_threshold: 5
+
+# Model-specific preferences by task type
+model_preferences:
+  code_generation:
+    preferred_models:
+      - "gpt-4o"
+      - "claude-3.5-sonnet"
+      - "llama-3.1-70b"
+    avoid_models: []
+
+  creative_writing:
+    preferred_models:
+      - "claude-3.5-sonnet"
+      - "gpt-4o"
+    avoid_models:
+      - "gpt-3.5-turbo"  # Less creative
+
+  system_administration:
+    preferred_models:
+      - "gpt-4o"
+      - "gpt-4o-mini"
+    avoid_models: []
+
+  cost_sensitive_tasks:
+    preferred_models:
+      - "llama-3.1-8b"
+      - "gpt-4o-mini"
+      - "gemini-2.0-flash"
+    max_cost_per_1k_tokens: 0.001

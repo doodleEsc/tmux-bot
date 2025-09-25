@@ -1,0 +1,119 @@
+# Development Environment Configuration for TmuxBot
+
+# Development-specific provider overrides
+providers:
+  openai:
+    # Use cost-effective models for development
+    default_parameters:
+      temperature: 0.3  # Lower temperature for more deterministic development responses
+      max_tokens: 2048  # Reduced token limit to save costs
+
+  openrouter:
+    # Prefer cost-effective models for development
+    model_mappings:
+      "gpt-4o": "openai/gpt-4o-mini"  # Use mini version for development
+      "claude-3.5-sonnet": "meta-llama/llama-3.1-8b-instruct"  # Use cheaper alternative
+
+# Development-specific agent configurations
+agents:
+  primary:
+    cost_optimization: true  # Enable cost optimization in development
+    providers:
+      - name: "openrouter"
+        weight: 1.2  # Prefer OpenRouter in development for cost savings
+        max_cost_per_1k_tokens: 0.005  # Stricter cost limits
+      - name: "openai"
+        weight: 0.8
+        max_cost_per_1k_tokens: 0.01
+
+  coder:
+    # Use faster, cheaper models for development coding tasks
+    providers:
+      - name: "openrouter"
+        weight: 1.0
+        max_cost_per_1k_tokens: 0.01
+      - name: "openai"
+        weight: 0.9
+        max_cost_per_1k_tokens: 0.015
+
+  devops:
+    cost_optimization: true
+    providers:
+      - name: "openrouter"
+        weight: 1.1
+        max_cost_per_1k_tokens: 0.005
+
+  sysadmin:
+    cost_optimization: true
+    providers:
+      - name: "openrouter"
+        weight: 1.1
+        max_cost_per_1k_tokens: 0.005
+
+# Development cost limits
+cost_limits:
+  daily_limit_usd: 10.0  # Lower daily limit for development
+  per_request_limit_usd: 0.25  # Lower per-request limit
+  warning_threshold_usd: 8.0
+
+# Development performance settings
+performance:
+  timeout_seconds: 60  # Longer timeouts for development debugging
+  max_retries: 5  # More retries for development stability
+  circuit_breaker_enabled: false  # Disable circuit breaker in development
+
+# Development logging and debugging
+logging:
+  level: "DEBUG"
+  log_requests: true
+  log_responses: true
+  log_costs: true
+  log_performance_metrics: true
+
+# Mock/test configurations
+testing:
+  enable_mock_providers: false
+  mock_delay_ms: 100
+  mock_failure_rate: 0.0
+
+  # Test API keys (should be fake/test keys)
+  test_api_keys:
+    openai: "sk-test-openai-key"
+    openrouter: "sk-or-test-key"
+
+# Development-specific context rules
+context_rules:
+  # In development, prefer cost-effective models for all contexts
+  code_generation:
+    - openrouter  # Use OpenRouter first for cost savings
+    - openai
+
+  text_analysis:
+    - openrouter
+    - openai
+
+  general:
+    - openrouter
+    - openai
+
+# Feature flags for development
+features:
+  enable_cost_optimization: true
+  enable_performance_monitoring: true
+  enable_adaptive_routing: false  # Disable adaptive routing in development
+  enable_circuit_breaker: false
+  enable_request_caching: true  # Enable caching to reduce API calls
+
+# Development tool integrations
+integrations:
+  # Enable development tools
+  enable_prometheus_metrics: false
+  enable_health_checks: true
+  enable_admin_interface: true
+
+# Development security settings
+security:
+  # Relaxed security for development
+  require_api_key_validation: false
+  enable_rate_limiting: false
+  log_sensitive_data: false  # Never log sensitive data even in development

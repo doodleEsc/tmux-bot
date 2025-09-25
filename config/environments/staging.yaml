@@ -1,0 +1,152 @@
+# Staging Environment Configuration for TmuxBot
+# Balances production-like settings with development cost controls
+
+# Staging-specific provider overrides
+providers:
+  openai:
+    # Production-like parameters with some cost optimization
+    default_parameters:
+      temperature: 0.7
+      max_tokens: 4096
+
+  openrouter:
+    # Mix of cost-effective and high-quality models
+    model_mappings:
+      "gpt-4o": "openai/gpt-4o"  # Use full model for critical tests
+      "claude-3.5-sonnet": "anthropic/claude-3.5-sonnet"
+
+# Staging-specific agent configurations
+agents:
+  primary:
+    cost_optimization: true  # Enable cost optimization in staging
+    providers:
+      - name: "openrouter"
+        weight: 1.1  # Prefer cost-effective options in staging
+        max_cost_per_1k_tokens: 0.025
+      - name: "openai"
+        weight: 1.0
+        max_cost_per_1k_tokens: 0.03
+
+  coder:
+    providers:
+      - name: "openrouter"
+        weight: 1.0
+        max_cost_per_1k_tokens: 0.025
+      - name: "openai"
+        weight: 0.9
+        max_cost_per_1k_tokens: 0.03
+
+  devops:
+    cost_optimization: true
+    providers:
+      - name: "openrouter"
+        weight: 1.1
+        max_cost_per_1k_tokens: 0.02
+      - name: "openai"
+        weight: 0.9
+        max_cost_per_1k_tokens: 0.03
+
+  sysadmin:
+    cost_optimization: true
+    providers:
+      - name: "openrouter"
+        weight: 1.1
+        max_cost_per_1k_tokens: 0.02
+      - name: "openai"
+        weight: 0.9
+        max_cost_per_1k_tokens: 0.03
+
+# Staging cost limits (between development and production)
+cost_limits:
+  daily_limit_usd: 25.0  # Moderate daily limit for staging
+  per_request_limit_usd: 0.5  # Moderate per-request limit
+  warning_threshold_usd: 20.0
+
+# Staging performance settings
+performance:
+  timeout_seconds: 35  # Between development and production
+  max_retries: 4  # Moderate retry count
+  circuit_breaker_enabled: true
+
+# Staging logging (more detailed than production)
+logging:
+  level: "INFO"
+  log_requests: true  # Enable for debugging staging issues
+  log_responses: false  # Disable for security
+  log_costs: true
+  log_performance_metrics: true
+
+# Staging monitoring (subset of production monitoring)
+monitoring:
+  enable_cost_alerts: true
+  enable_performance_alerts: true
+  enable_error_alerts: false  # Disable error alerts in staging
+  alert_thresholds:
+    cost_warning_usd: 20.0
+    cost_critical_usd: 24.0
+    response_time_warning_ms: 35000
+
+# Staging-specific context rules
+context_rules:
+  # Balance cost and reliability for staging
+  code_generation:
+    - openrouter
+    - openai
+
+  text_analysis:
+    - openrouter
+    - openai
+
+  general:
+    - openrouter
+    - openai
+
+# Staging feature flags (test production features)
+features:
+  enable_cost_optimization: true
+  enable_performance_monitoring: true
+  enable_adaptive_routing: true
+  enable_circuit_breaker: true
+  enable_request_caching: true
+  enable_metrics_collection: true
+
+# Staging tool integrations
+integrations:
+  enable_prometheus_metrics: true
+  enable_health_checks: true
+  enable_admin_interface: true  # Enable for staging debugging
+
+  # Test external integrations in staging
+  datadog_enabled: false
+  new_relic_enabled: false
+  sentry_enabled: true
+
+# Staging security settings (less strict than production)
+security:
+  require_api_key_validation: true
+  enable_rate_limiting: true
+  log_sensitive_data: false
+  enforce_https: false  # May use HTTP in staging
+  api_key_rotation_days: 30
+
+# Staging deployment settings
+deployment:
+  health_check_path: "/health"
+  readiness_check_path: "/ready"
+  metrics_path: "/metrics"
+
+  graceful_shutdown_timeout: 20
+  startup_probe_delay: 5
+  liveness_probe_interval: 15
+
+# Staging backup settings
+backup:
+  enable_config_backup: true
+  enable_conversation_backup: false
+  backup_retention_days: 7  # Shorter retention for staging
+
+# Staging resource limits (smaller than production)
+resources:
+  max_concurrent_requests: 20
+  max_memory_mb: 512
+  max_cpu_cores: 1.0

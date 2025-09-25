@@ -1,0 +1,32 @@
+# TmuxBot Profile-Based Configuration
+# Pure profile-based architecture - no legacy settings
+# Environment variables: Use TMUXBOT_PROFILE_{PROFILE_NAME}_{PARAMETER} to override settings
+
+profiles:
+  openai-gpt-4o:
+    provider: openai
+    api_key: your-openai-api-key-here
+    model: gpt-4o
+    settings:
+      temperature: 0.7
+      max_tokens: 4096
+    timeout: 30
+
+  or:
+    provider: openai
+    model: openai/gpt-4o-mini
+    base_url: https://openrouter.ai/api/v1
+    api_key: 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
+    settings:
+      temperature: 0.7
+      max_tokens: 4096
+
+agents:
+  primary:
+    profile: or
+    instructions: You are TmuxBot's primary coordination agent.
+  coder:
+    profile: openai-gpt-4o-mini
+    instructions: Focus on code quality and best practices.
+    fallbacks:
+    - openai-gpt-4o-mini
